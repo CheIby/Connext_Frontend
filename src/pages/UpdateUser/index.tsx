@@ -18,6 +18,7 @@ import {
   IconButton,
   Chip,
   Divider,
+  Avatar,
 } from "@mui/material";
 import { Container } from "@mui/system";
 import { AlertContext } from "../../context/alertContext";
@@ -26,6 +27,8 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { regexValidator } from "../../utils/regexValidator";
@@ -343,9 +346,10 @@ function index({}: Props) {
 
   useEffect(() => {
     UserApiCall.getUserInfo().then((res) => {
-        setUserInfo(res.data);
-        setDidFetch(true);
-      });
+      setUserInfo(res.data);
+      setBDay(dayjs(res.data.bornDate));
+      setDidFetch(true);
+    });
 
     handleAlertChange({});
   }, []);
@@ -357,257 +361,334 @@ function index({}: Props) {
     }
   }, [userInfo]);
 
-  return (
-        <Container maxWidth="xs">
-          <Typography variant="h4" sx={{ textAlign: "left" }}>
-            Update user info
-          </Typography>
-          <Box
-            component="form"
-            onSubmit={async (event) => {
-              await handleSubmit(event);
-              setIsLoading(false);
+  return userInfo != null && didFetch == true ? (
+    <Container maxWidth="xs">
+      <Box
+        sx={{
+          width: "100%",
+          marginY: "0.5rem",
+          position: "relative",
+        }}
+      >
+        <Avatar variant="rounded" sx={{ bgcolor: "inherit", color: "black" }}>
+          <ArrowBackIosIcon fontSize="small" />
+        </Avatar>
+        <Typography
+          variant="h1"
+          sx={{
+            fontSize: "1.5rem",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+          align="center"
+        >
+          Account
+        </Typography>
+      </Box>
+      <Box>
+        <Box
+          sx={{
+            height: "170px",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "relative",
+          }}
+        >
+          <img
+            src={`${import.meta.env.VITE_API_BACKEND_URL}${
+              userInfo?.wallpaperImg
+            }`}
+            alt=""
+            style={{ width: "100%", height: "100%", borderRadius: "16px" }}
+          />
+          <Button
+            sx={{
+              // width: "10px",
+              // height: "10px",
+              bgcolor: "#D9D9DA",
+              color: "#6E6E6E",
+              borderRadius: "50%",
+              position: "absolute",
+              right: "5px",
+              bottom: "5px",
+              border: "2px solid white",
             }}
-            noValidate
-            sx={{ mt: 1 }}
           >
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="firstName"
-                label="First Name"
-                type="text"
-                id="firstName"
-                autoComplete="first-name"
-                inputProps={{ maxLength: 50 }}
+            <Avatar>
+                    <CameraAltIcon fontSize="small" />
+              </Avatar>
+          </Button>
+        </Box>
+        <Box
+          sx={{
+            width: "100%",
+            height: "50px",
+            position: "relative",
+          }}
+        >
+          <Box
+            sx={{
+              border: "2px solid white",
+              width: "100px",
+              height: "100px",
+              position: "absolute",
+              borderRadius: "50%",
+              top: "0px",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <img
+              src={`${import.meta.env.VITE_API_BACKEND_URL}${
+                userInfo?.userImg
+              }`}
+              alt=""
+            />
+            <Avatar
+              variant="rounded"
+              sx={{
+                width: "30px",
+                height: "30px",
+                bgcolor: "#D9D9DA",
+                color: "#6E6E6E",
+                borderRadius: "50%",
+                position: "absolute",
+                right: "-5px",
+                bottom: "0px",
+                border: "2px solid white",
+              }}
+            >
+              <CameraAltIcon fontSize="small" />
+            </Avatar>
+          </Box>
+        </Box>
+      </Box>
+      <Box
+        component="form"
+        onSubmit={async (event) => {
+          await handleSubmit(event);
+          setIsLoading(false);
+        }}
+        noValidate
+        sx={{ mt: 1 }}
+      >
+        <Box>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="firstName"
+            label="First Name"
+            type="text"
+            id="firstName"
+            autoComplete="first-name"
+            inputProps={{ maxLength: 50 }}
+            sx={{
+              mr: 2,
+              "& fieldset": {
+                borderRadius: "16px",
+              },
+            }}
+            defaultValue={userInfo?.firstName}
+            // TODO: validate onMouseLeft
+            // onBlur={(e) => regexValidator.name(e.target.value)}
+            // error={(e) => !regexValidator.name(e.target.value)}
+            // helperText="Please specify the first name"
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="lastName"
+            label="Last Name"
+            type="text"
+            id="lastName"
+            autoComplete="last-name"
+            inputProps={{ maxLength: 50 }}
+            sx={{
+              "& fieldset": {
+                borderRadius: "16px",
+              },
+            }}
+            defaultValue={userInfo?.lastName}
+          />
+        </Box>
+        <Box sx={{ mt: 1 }}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DemoContainer components={["DatePicker", "DatePicker"]}>
+              <DatePicker
+                label="Date of birth"
+                value={bDay}
+                slotProps={{
+                  textField: {
+                    helperText: "MM/DD/YYYY",
+                  },
+                }}
+                onChange={(newValue) => setBDay(newValue)}
                 sx={{
-                  mr: 2,
+                  width: "100%",
                   "& fieldset": {
                     borderRadius: "16px",
                   },
                 }}
-
-                // TODO: validate onMouseLeft
-                // onBlur={(e) => regexValidator.name(e.target.value)}
-                // error={(e) => !regexValidator.name(e.target.value)}
-                // helperText="Please specify the first name"
               />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="lastName"
-                label="Last Name"
-                type="text"
-                id="lastName"
-                autoComplete="last-name"
-                inputProps={{ maxLength: 50 }}
-                sx={{
-                  "& fieldset": {
-                    borderRadius: "16px",
-                  },
-                }}
-              />
-            </Box>
-            <Box sx={{ mt: 1 }}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DemoContainer components={["DatePicker", "DatePicker"]}>
-                  <DatePicker
-                    label="Date of birth"
-                    value={bDay}
-                    defaultValue={dayjs("2005-05-01")}
-                    defaultCalendarMonth={dayjs("2005-05-01")}
-                    slotProps={{
-                      textField: {
-                        helperText: "MM/DD/YYYY",
-                      },
-                    }}
-                    onChange={(newValue) => setBDay(newValue)}
-                    sx={{
-                      width: "100%",
-                      "& fieldset": {
-                        borderRadius: "16px",
-                      },
-                    }}
-                  />
-                </DemoContainer>
-              </LocalizationProvider>
-            </Box>
-            <FormControl
-                sx={{
-                  minWidth: 200,
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "start",
-                  my: 1,
-                  "& fieldset": {
-                    borderRadius: "16px",
-                  },
-                }}
-              >
-                <InputLabel id="demo-simple-select-helper-label">
-                  Career
-                </InputLabel>
-                <Select
-                  labelId="demo-simple-select-helper-label"
-                  id="select-helper"
-                  value={career}
-                  label="Career"
-                  onChange={(event) => setCareer(event.target.value)}
-                >
-                  <MenuItem value="student">Student</MenuItem>
-                  <MenuItem value="privateCompanyEmployees">
-                    Private Company Employees
-                  </MenuItem>
-                  <MenuItem value="stateEnterpriseEmployees">
-                    State Enterprise Employees
-                  </MenuItem>
-                  <MenuItem value="civilServant">Civil Servant</MenuItem>
-                  <MenuItem value="factoryWorkers">Factory Workers</MenuItem>
-                  <MenuItem value="businessOwner">Business Owner</MenuItem>
-                  <MenuItem value="other">Other</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl
-                sx={{
-                  minWidth: 200,
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "start",
-                  my: 1,
-                  "& fieldset": {
-                    borderRadius: "16px",
-                  },
-                }}
-              >
-                <InputLabel id="demo-simple-select-helper-label">
-                  Career
-                </InputLabel>
-                <Select
-                  labelId="demo-simple-select-helper-label"
-                  id="select-helper"
-                  value={career}
-                  label="Career"
-                  onChange={(event) => setCareer(event.target.value)}
-                >
-                  <MenuItem value="student">Student</MenuItem>
-                  <MenuItem value="privateCompanyEmployees">
-                    Private Company Employees
-                  </MenuItem>
-                  <MenuItem value="stateEnterpriseEmployees">
-                    State Enterprise Employees
-                  </MenuItem>
-                  <MenuItem value="civilServant">Civil Servant</MenuItem>
-                  <MenuItem value="factoryWorkers">Factory Workers</MenuItem>
-                  <MenuItem value="businessOwner">Business Owner</MenuItem>
-                  <MenuItem value="other">Other</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl
-                sx={{
-                  minWidth: 200,
-                  width: "100%",
-                  display: "flex",
-                  mt: 1,
-                  mb: 2,
-                  justifyContent: "start",
-                  "& fieldset": {
-                    borderRadius: "16px",
-                  },
-                }}
-              >
-                <InputLabel id="demo-multiple-chip-label">
-                  Interested topic
-                </InputLabel>
-                <Select
-                  labelId="demo-multiple-chip-label"
-                  id="demo-multiple-chip"
-                  multiple
-                  value={interested}
-                  onChange={handleSelectTopic}
-                  input={
-                    <OutlinedInput id="select-multiple-chip" label="Chip" />
-                  }
-                  renderValue={(selected) => (
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                      {selected.map((value) => (
-                        <Chip key={value} label={value} />
-                      ))}
-                    </Box>
-                  )}
-                  MenuProps={MenuProps}
-                >
-                  {INTERESTED_TOPIC.map((topic) => (
-                    <MenuItem
-                      key={topic}
-                      value={topic}
-                      style={getStyles(topic, INTERESTED_TOPIC, theme)}
-                    >
-                      {topic}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <Divider />
-              {userInfo!=null?(
-              <>
-                <Box sx={{ my: 2 }}>
-                {privateAbleKey.map((social: privateAbleKeyType) => (
-                  <PrivateAbleTextFields
-                    key={social}
-                    socialName={social}
-                    socialData={userInfo[social]}
-                    handleChange={handlePrivateDataChange}
-                  />
+            </DemoContainer>
+          </LocalizationProvider>
+        </Box>
+        <FormControl
+          sx={{
+            minWidth: 200,
+            width: "100%",
+            display: "flex",
+            justifyContent: "start",
+            my: 1,
+            "& fieldset": {
+              borderRadius: "16px",
+            },
+          }}
+        >
+          <InputLabel id="demo-simple-select-helper-label">Career</InputLabel>
+          <Select
+            labelId="demo-simple-select-helper-label"
+            id="select-helper"
+            value={career}
+            label="Career"
+            onChange={(event) => setCareer(event.target.value)}
+          >
+            <MenuItem value="student">Student</MenuItem>
+            <MenuItem value="privateCompanyEmployees">
+              Private Company Employees
+            </MenuItem>
+            <MenuItem value="stateEnterpriseEmployees">
+              State Enterprise Employees
+            </MenuItem>
+            <MenuItem value="civilServant">Civil Servant</MenuItem>
+            <MenuItem value="factoryWorkers">Factory Workers</MenuItem>
+            <MenuItem value="businessOwner">Business Owner</MenuItem>
+            <MenuItem value="other">Other</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl
+          sx={{
+            minWidth: 200,
+            width: "100%",
+            display: "flex",
+            justifyContent: "start",
+            my: 1,
+            "& fieldset": {
+              borderRadius: "16px",
+            },
+          }}
+        ></FormControl>
+        <FormControl
+          sx={{
+            minWidth: 200,
+            width: "100%",
+            display: "flex",
+            mt: 1,
+            mb: 2,
+            justifyContent: "start",
+            "& fieldset": {
+              borderRadius: "16px",
+            },
+          }}
+        >
+          <InputLabel id="demo-multiple-chip-label">
+            Interested topic
+          </InputLabel>
+          <Select
+            labelId="demo-multiple-chip-label"
+            id="demo-multiple-chip"
+            multiple
+            value={interested}
+            onChange={handleSelectTopic}
+            input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+            renderValue={(selected) => (
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                {selected.map((value) => (
+                  <Chip key={value} label={value} />
                 ))}
               </Box>
-              <Divider />
-              <SocialTextFields
-                socialMedia={userInfo.socialMedia}
-                handleChange={handleSocialChange}
+            )}
+            MenuProps={MenuProps}
+          >
+            {INTERESTED_TOPIC.map((topic) => (
+              <MenuItem
+                key={topic}
+                value={topic}
+                style={getStyles(topic, INTERESTED_TOPIC, theme)}
+              >
+                {topic}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <Divider />
+        {userInfo != null ? (
+          <>
+            <Box sx={{ my: 2 }}>
+              {privateAbleKey.map((social: privateAbleKeyType) => (
+                <PrivateAbleTextFields
+                  key={social}
+                  socialName={social}
+                  socialData={userInfo[social]}
+                  handleChange={handlePrivateDataChange}
                 />
-              </>):("")}
-              
+              ))}
+            </Box>
+            <Divider />
+            <SocialTextFields
+              socialMedia={userInfo.socialMedia}
+              handleChange={handleSocialChange}
+            />
+          </>
+        ) : (
+          ""
+        )}
 
-            <Typography
-              variant="body2"
-              sx={{
-                mt: 2,
-              }}
-            >
-              {"Have an account?"}{" "}
-              <Link href="/login" variant="body2" underline="hover">
-                {"Login"}
-              </Link>
+        <Typography
+          variant="body2"
+          sx={{
+            mt: 2,
+          }}
+        >
+          {"Have an account?"}{" "}
+          <Link href="/login" variant="body2" underline="hover">
+            {"Login"}
+          </Link>
+        </Typography>
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          sx={{
+            mt: 3,
+            mb: 2,
+            px: 1,
+            py: 2,
+            borderRadius: "16px",
+            color: "white",
+            fontWeight: "bold",
+            fontSize: "0.93rem",
+          }}
+          disabled={loading}
+        >
+          {loading ? (
+            <CircularProgress color="inherit" size={16} />
+          ) : (
+            <Typography sx={{ fontWeight: "bold", fontSize: "1.1rem" }}>
+              REGISTER
             </Typography>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{
-                mt: 3,
-                mb: 2,
-                px: 1,
-                py: 2,
-                borderRadius: "16px",
-                color: "white",
-                fontWeight: "bold",
-                fontSize: "0.93rem",
-              }}
-              disabled={loading}
-            >
-              {loading ? (
-                <CircularProgress color="inherit" size={16} />
-              ) : (
-                <Typography sx={{ fontWeight: "bold", fontSize: "1.1rem" }}>
-                  REGISTER
-                </Typography>
-              )}
-            </Button>
-          </Box>
-        </Container>
+          )}
+        </Button>
+      </Box>
+    </Container>
+  ) : (
+    ""
   );
 }
 
