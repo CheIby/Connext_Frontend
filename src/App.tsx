@@ -3,10 +3,13 @@ import "./index.css";
 import CssBaseline from "@mui/material/CssBaseline";
 import { RouterProvider, Link } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import {Provider } from 'react-redux'
+import { PersistGate } from 'redux-persist/integration/react';
 
 import { router } from "./router";
 import CircularProgress from "@mui/material/CircularProgress";
 import createPalette from "@mui/material/styles/createPalette";
+import {store,persistor} from "./store/store"
 
 let theme = createTheme({
   palette: {
@@ -32,8 +35,12 @@ let theme = createTheme({
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <RouterProvider router={router} fallbackElement={<CircularProgress />} />
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <CssBaseline />
+          <RouterProvider router={router} fallbackElement={<CircularProgress />} />
+        </PersistGate>
+      </Provider>
     </ThemeProvider>
   );
 }

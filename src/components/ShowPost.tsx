@@ -29,30 +29,42 @@ import { IUserInfo } from "../types/User";
 import { IPostInfo } from "../types/Post";
 import moment from "moment";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import PostOption from "./PostOption";
 
 const ShowPost = ({
-  userID,
-  postID,
+  userInfo,
+  postInfo,
 }: {
-  userID: string | undefined;
-  postID: string | null;
+  userInfo: IUserInfo | null;
+  postInfo: IPostInfo | null;
 }) => {
-  const [userInfo, setUserInfo] = useState<IUserInfo | null>(null);
-  const [postInfo, setPostInfo] = useState<IPostInfo | null>(null);
-  const [didFetch, setDidFetch] = useState<boolean>(false);
+  // const [userInfo, setUserInfo] = useState<IUserInfo | null>(null);
+  // const [postInfo, setPostInfo] = useState<IPostInfo | null>(null);
+  const [postOption,setPostOption] =useState<boolean>(false);
+  const [didFetch, setDidFetch] = useState<boolean>(true);
 
-  const fetchData = async () => {
-    await UserApiCall.getOtherUserInfo(userID).then((res) => {
-      setUserInfo(res.data);
-      PostApiCall.getPost(postID).then((res) => {
-        setPostInfo(res.data);
-        setDidFetch(true);
-      });
-    });
-  };
+  // const fetchData = async () => {
+  //   await UserApiCall.getOtherUserInfo(userID).then((res) => {
+  //     setUserInfo(res.data);
+  //     PostApiCall.getPost(postID).then((res) => {
+  //       setPostInfo(res.data);
+  //       setFlag(res.data.pinPost)
+  //       console.log(res.data.pinPost)
+  //       setDidFetch(true);
+  //     });
+  //   });
+  // };
+
+  const handleChangeModal = async()=>{
+    if (postOption==true){
+      setPostOption(false)
+    }else{
+      setPostOption(true)
+    }
+  }
 
   useEffect(() => {
-    fetchData();
+    // fetchData();
   }, []);
 
   return didFetch == true ? (
@@ -105,7 +117,7 @@ const ShowPost = ({
           </Box>
         </Box>
         <Box>
-            <Button sx={{p:0}}>
+            <Button sx={{p:0}} onClick={()=>setPostOption(true)}>
                 <Avatar variant="rounded"  sx={{ bgcolor: "inherit", color:"black" }}>
                     <MoreHorizIcon fontSize="medium" />
                 </Avatar>
@@ -122,6 +134,7 @@ const ShowPost = ({
           {postInfo?.postDescription}
         </Typography>
       </Box>
+      {postOption == true?<PostOption postInfo={postInfo} handleChangeModal={handleChangeModal} open={postOption}/> : ""}
     </Box>
   ) : (
     <Container component="main" maxWidth="xs">

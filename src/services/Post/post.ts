@@ -31,6 +31,24 @@ const PostApiCall:IPostApiCall={
             method:"GET",
             url:`/post/getPost/${_id}`,
         });
+    },
+
+    getPostByUserId : async(_id :string | null)=>{
+        return api({
+            method:"GET",
+            url:`/post/getPostsByUserId/${_id}`
+        })
+    },
+
+    pinPost:async(_id:string | null)=>{
+        const token = localStorage.getItem('accessToken')
+        return api({
+            method:"PATCH",
+            headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            url:`/post/pinPost/${_id}`
+        })
     }
 }
 

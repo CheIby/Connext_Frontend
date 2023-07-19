@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useSelector,useDispatch } from "react-redux";
 // import { SHA256 } from "crypto-js";
 // import { TabPanel } from "@mui/lab";
 import {
@@ -30,6 +31,7 @@ import InfoBox from "./Info";
 import PostBox from "./Post";
 import { UserContext } from "../../context/userContext";
 import AddPostModal from "../../components//AddPostModal"
+import PostOption from "../../components/PostOption"
 
 import { type } from "os";
 import { json } from "node:stream/consumers";
@@ -37,6 +39,9 @@ import jwtDecode from "jwt-decode";
 import { IAccessToken } from "../../types/Token";
 import axios from "axios";
 import { rmSync } from "fs";
+import { selectUsers } from "../../store/userSlice";
+import { selectPosts,fetchPostByUserId } from "../../store/postSlice";
+import {ThunkDispatch} from "@reduxjs/toolkit";
 
 type IParams = {
   userName: string | undefined;
@@ -50,29 +55,26 @@ export default function index() {
   const [userInfo, setUserInfo] = useState<IUserInfo | null>(null);
   const [showStete, setShowState] = useState<IState>("Info");
   const [showPostModal,setShowPostModal] =useState<boolean>(false);
+  const [postOption,setPostOption] = useState<boolean>(false);
   const { userInfoContext, getUserInfoContext } = useContext(UserContext);
   const { userName } = useParams<IParams>();
   let token = localStorage.getItem("accessToken");
   const navigate = useNavigate();
-
-  // const fetchData = async()=>{
-  //   if(token==null || jwtDecode<IAccessToken>(token).userName!==userName){
-  //     UserApiCall.getOtherUserInfo(userName).then((res) => {
-  //     setUserInfo(res.data);
-  //     setDidFetch(true);
-  //   });
-  // }else if(jwtDecode<IAccessToken>(token).userName===userName){
-  //   await getUserInfoContext()
-  //   await setUserInfo(userInfoContext);
-  //   setDidFetch(true);
-  // }
-  // }
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>()
+  const user = useSelector(selectUsers);
+  
 
   useEffect(() => {
-    UserApiCall.getOtherUserInfo(userName).then((res) => {
-      setUserInfo(res.data);
-      setDidFetch(true);
-    });
+    if (user?.userName == userName){
+      setUserInfo(user)
+      setDidFetch(true)
+    }else{
+      UserApiCall.getOtherUserInfo(userName).then((res) => {
+        setUserInfo(res.data);
+        dispatch(fetchPostByUserId(res.data._id));
+        setDidFetch(true);
+      });
+    }
   }, []);
   
   useEffect(()=>{
@@ -101,6 +103,12 @@ export default function index() {
     }else{
       setShowPostModal(true)
     }
+  }
+
+  const logOut =async()=>{
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('persist:root')
+    navigate('/')
   }
 
   return userInfo && didFetch ? (
@@ -142,12 +150,14 @@ export default function index() {
             >
               {userInfo?.userName}
             </Typography>
-            <Avatar
-              variant="rounded"
-              sx={{ m: 1, bgcolor: "inherit", color: "black" }}
-            >
-              <SettingsIcon fontSize="small" />
-            </Avatar>
+            <Button onClick={logOut}>
+              <Avatar
+                variant="rounded"
+                sx={{ m: 1, bgcolor: "inherit", color: "black" }}
+              >
+                <SettingsIcon fontSize="small" />
+              </Avatar>
+            </Button>
           </Box>
           <Box
             sx={{
@@ -306,7 +316,7 @@ export default function index() {
             </Box>
           </Box>
         </Box>
-        {token != null &&jwtDecode<IAccessToken>(token).userName === userName ?
+        {/* {token != null &&jwtDecode<IAccessToken>(token).userName === userName ?
         <Box
         sx={{
           width: "100%",
@@ -352,6 +362,7 @@ export default function index() {
             borderRadius: "16px",
             textTransform: "none",
           }}
+          onClick={()=>setPostOption(true)}
         >
           <Typography
             sx={{
@@ -366,7 +377,7 @@ export default function index() {
         </Button>
       </Box>:
       ""  
-      }
+      } */}
         <TabContext value={showStete}>
           <Box sx={{ borderBottom: 1, borderColor: "divider", width: "100%" }}>
             <TabList
@@ -375,8 +386,8 @@ export default function index() {
               variant="fullWidth"
             >
               <Tab label="Info" value="Info" />
-              <Tab label="Event" value="Event" />
               <Tab label="Post" value="Post" />
+              <Tab label="Event" value="Event" />
             </TabList>
           </Box>
           <TabPanel value="Info" sx={{ width: "100%", padding: 0 }}>

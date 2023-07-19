@@ -2,6 +2,7 @@ import { createBrowserRouter, Link, Outlet } from "react-router-dom";
 import { AlertProvider } from "./context/alertContext";
 import { UserProvider } from "./context/userContext";
 import CustomAlert from "./components/CustomAlert";
+import { Provider } from "react-redux";
 
 import Login from "./pages/Login";
 import Home from "./pages/Home";

@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect } from "react";
+import { useSelector } from "react-redux";
 import {
   Box,
   CircularProgress,
@@ -32,6 +33,7 @@ import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { regexValidator } from "../../utils/regexValidator";
+import { selectUsers } from "../../store/userSlice";
 import {
   IUserInfo,
   IUserRegisterInfo,
@@ -52,9 +54,10 @@ import { UserInfo } from "os";
 // TODO: Separate Update user information to a new page
 type Props = {};
 
-function index({}: Props) {
+export default function index({}: Props) {
   const navigate = useNavigate();
   const theme = useTheme();
+  const user = useSelector(selectUsers);
 
   const { handleAlertChange } = useContext(AlertContext);
   const [loading, setIsLoading] = useState<boolean>(false);
@@ -345,11 +348,9 @@ function index({}: Props) {
   }
 
   useEffect(() => {
-    UserApiCall.getUserInfo().then((res) => {
-      setUserInfo(res.data);
-      setBDay(dayjs(res.data.bornDate));
-      setDidFetch(true);
-    });
+    setUserInfo(user)
+    setBDay(dayjs(user?.bornDate))
+    setDidFetch(true);
 
     handleAlertChange({});
   }, []);
@@ -688,8 +689,8 @@ function index({}: Props) {
       </Box>
     </Container>
   ) : (
-    ""
+    <div>
+      oot
+    </div>
   );
 }
-
-export default index;

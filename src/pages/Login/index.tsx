@@ -1,4 +1,5 @@
 import { useState, useContext } from "react";
+import {useDispatch} from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { SHA256 } from "crypto-js";
 import {
@@ -20,12 +21,18 @@ import { IUserCredential } from "../../types/User";
 import { regexValidator } from "../../utils/regexValidator";
 import { AlertContext } from "../../context/alertContext";
 import { UserContext } from "../../context/userContext";
+import {fetchUserInfo} from "../../store/userSlice"
+import { fetchPostByUserId } from "../../store/postSlice";
+import {ThunkDispatch} from "@reduxjs/toolkit";
+import jwtDecode from "jwt-decode";
+import { IAccessToken } from "../../types/Token";
 
 export default function index() {
   const navigate = useNavigate();
   const { handleAlertChange } = useContext(AlertContext);
   const { getUserInfoContext} = useContext(UserContext);
   const [loading, setIsLoading] = useState<boolean>(false);
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>()
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -50,7 +57,8 @@ export default function index() {
         if (res.status === 200) {
           handleAlertChange({ type: "success", msg: "Login Success" });
           localStorage.setItem("accessToken", res.data.accessToken);
-          getUserInfoContext()
+          dispatch(fetchUserInfo(res.data.accessToken));
+          dispatch(fetchPostByUserId(jwtDecode<IAccessToken>(res.data.accessToken)._id))
           navigate("/");
         } else {
           handleAlertChange({ type: "error", msg: res.data.message || res });
