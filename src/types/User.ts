@@ -56,9 +56,25 @@ export interface IUserInfo {
   career: string;
   shortBio: string;
 }
+
+
+export interface IChangePassword{
+  newPassword: FormDataEntryValue | null;
+  confirmPassword: FormDataEntryValue | null;
+}
+
 export type userInfoKey = keyof IUserInfo;
 export type SOCIAL_LIST = keyof IUserInfo["socialMedia"];
 
 export const privateAbleKey = ["email", "phone", "website"] as const;
 export type privateAbleKeyType = "email" | "phone" | "website";
 // export type privateAbleKeyType = typeof privateAbleKey;
+
+export type IGetUserInfoContext =() => void;
+export type IUpdateUserInfoContext =(newUserInfo : IUserInfo) =>void
+
+export type UserInfoContextType = {
+  userInfoContext: IUserInfo | null;
+  getUserInfoContext:IGetUserInfoContext;
+  updateUserInfoContext: IUpdateUserInfoContext;
+};

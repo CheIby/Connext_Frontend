@@ -1,4 +1,5 @@
 import { useState, useContext } from "react";
+import {useDispatch} from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { SHA256 } from "crypto-js";
 import {
@@ -19,11 +20,19 @@ import { AuthApiCall } from "../../services/Auth/auth";
 import { IUserCredential } from "../../types/User";
 import { regexValidator } from "../../utils/regexValidator";
 import { AlertContext } from "../../context/alertContext";
+import { UserContext } from "../../context/userContext";
+import {fetchUserInfo} from "../../store/userSlice"
+import { fetchPostByUserId } from "../../store/postSlice";
+import {ThunkDispatch} from "@reduxjs/toolkit";
+import jwtDecode from "jwt-decode";
+import { IAccessToken } from "../../types/Token";
 
 export default function index() {
   const navigate = useNavigate();
   const { handleAlertChange } = useContext(AlertContext);
+  const { getUserInfoContext} = useContext(UserContext);
   const [loading, setIsLoading] = useState<boolean>(false);
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>()
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -34,7 +43,7 @@ export default function index() {
     //   email: data.get("email"),
     //   password: data.get("password"),
     // });
-
+    
     let input = {
       email: data.get("email"),
       password: data.get("password"),
@@ -44,10 +53,12 @@ export default function index() {
       hashPassword(input);
 
       AuthApiCall.login(input).then((res) => {
-        console.log("res", res);
+        // console.log("res", res);
         if (res.status === 200) {
           handleAlertChange({ type: "success", msg: "Login Success" });
           localStorage.setItem("accessToken", res.data.accessToken);
+          dispatch(fetchUserInfo(res.data.accessToken));
+          dispatch(fetchPostByUserId(jwtDecode<IAccessToken>(res.data.accessToken)._id))
           navigate("/");
         } else {
           handleAlertChange({ type: "error", msg: res.data.message || res });
@@ -162,7 +173,7 @@ export default function index() {
               mt: 1,
             }}
           >
-            <Link href="#" variant="body2" underline="hover">
+            <Link href="/forgotPassword" variant="body2" underline="hover">
               Forgot password?
             </Link>
             <Typography variant="body2">

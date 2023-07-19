@@ -1,11 +1,16 @@
 import { createBrowserRouter, Link, Outlet } from "react-router-dom";
 import { AlertProvider } from "./context/alertContext";
+import { UserProvider } from "./context/userContext";
 import CustomAlert from "./components/CustomAlert";
+import { Provider } from "react-redux";
 
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Register from "./pages/Register";
 import NotFound404 from "./pages/NotFound404";
+import ForgotPassword from "./pages/ForgotPassword";
+import UserProfile from "./pages/UserProfile";
+import UpdateUser from "./pages/UpdateUser";
 
 import { Box } from "@mui/system";
 
@@ -22,18 +27,20 @@ const Navbar = () => (
 //TODO: create header and add header to router
 const Layout = () => (
   <AlertProvider>
-    <Box
-      sx={{
-        width: "100%",
-        height: "100%",
-      }}
-    >
-      <CustomAlert />
-      {/* <header>
-        <Navbar />
-      </header> */}
-      <Outlet />
-    </Box>
+    <UserProvider>
+      <Box
+        sx={{
+          width: "100%",
+          height: "100%",
+        }}
+      >
+        <CustomAlert />
+        {/* <header>
+          <Navbar />
+        </header> */}
+        <Outlet />
+      </Box>
+    </UserProvider>
   </AlertProvider>
 );
 
@@ -55,6 +62,18 @@ const router = createBrowserRouter([
         path: "register",
         element: <Register />,
       },
+      {
+        path:"forgotPassword",
+        element:<ForgotPassword />
+      },
+      {
+        path:"userProfile/:userName",
+        element:<UserProfile/>
+      },
+      {
+        path:"UpdateUser",
+        element:<UpdateUser/>
+      }
     ],
   },
 ]);
