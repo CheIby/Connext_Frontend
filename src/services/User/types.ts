@@ -7,4 +7,5 @@ export interface IUserApiCall {
   updateUserInfo: (payload: IUserInfo) => Promise<AxiosResponse>;
   follow:(followId:string | undefined) => Promise<AxiosResponse>;
   unfollow:(unfollowId:string | undefined)=>Promise<AxiosResponse>;
+  search:(userName:string | undefined) => Promise<AxiosResponse>;
 }

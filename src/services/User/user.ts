@@ -55,6 +55,13 @@ const UserApiCall: IUserApiCall = {
       },
       data:{followId:unfllowId}
     })
+  },
+
+  search:async(userName : string | undefined)=>{
+    return api({
+      method:"GET",
+      url:`/user/searchUser?keyword=${userName}`
+    })
   }
 };
 

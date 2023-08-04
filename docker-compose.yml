@@ -4,11 +4,6 @@ services:
     container_name: nfc_front
     build:
       context: .
-    restart: always
-    networks:
-      - nginx
-
-networks:
-  nginx:
-    name: nginx_default
-    driver: bridge
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"

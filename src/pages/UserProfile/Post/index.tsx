@@ -49,10 +49,7 @@ export default function index({userInfo}: {userInfo: IUserInfo | undefined}) {
   }
   return userInfo!=undefined? (
     <Box>
-      <Swiper scrollbar={{
-          hide: true,
-        }}
-        modules={[Scrollbar]}
+      <Swiper 
         className="mySwiper">
       {post.map((val,key)=>{
                         return val.pinPost==true? (
